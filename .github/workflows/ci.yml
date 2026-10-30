@@ -11,25 +11,28 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        compiler: [gcc, clang]
+        cc: [gcc, clang]
+    env:
+      CXX: ${{ matrix.cc == 'gcc' && 'g++' || 'clang++' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: lukka/run-cmake@v10
-        with:
-          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          cmakeAppendedArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{ matrix.compiler == "gcc" && "g++" || "clang++" }}'
-          buildWithTarget: probe_tests
-          buildDirectory: build
+      - name: configure
+        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - name: build
+        run: cmake --build build
       - name: tests
         run: ./build/probe_tests
-      - name: benchmark (evidence printed)
+      - name: benchmark evidence
         run: ./build/probe_bench
 
   sanitizers:
+    name: asan + ubsan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update && sudo apt-get install -y ninja-build
-      - run: cmake -B build-san -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
-      - run: cmake --build build-san
-      - run: ./build-san/probe_tests
+      - name: configure
+        run: cmake -B build-san -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+      - name: build
+        run: cmake --build build-san
+      - name: tests under sanitizers
+        run: ./build-san/probe_tests
