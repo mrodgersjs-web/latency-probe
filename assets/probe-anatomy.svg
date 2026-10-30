@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 220" font-family="Menlo, monospace">
+  <rect width="860" height="220" fill="#0b1020"/>
+  <text x="24" y="36" fill="#e2e8f0" font-size="16">latency-probe — two primitives, one header</text>
+  <g>
+    <text x="24" y="76" fill="#38bdf8" font-size="13">Histogram (512 fixed buckets)</text>
+    <rect x="24" y="92" width="46" height="60" fill="#1e293b" stroke="#334155"/>
+    <rect x="74" y="92" width="50" height="60" fill="#1e293b" stroke="#334155"/>
+    <rect x="128" y="92" width="55" height="60" fill="#0f2740" stroke="#38bdf8"/>
+    <rect x="187" y="92" width="61" height="60" fill="#1e293b" stroke="#334155"/>
+    <rect x="252" y="92" width="67" height="60" fill="#1e293b" stroke="#334155"/>
+    <text x="155" y="170" fill="#38bdf8" font-size="11" text-anchor="middle">p99 lands here: bucket edge, ≤9.1% over, never under</text>
+    <text x="140" y="126" fill="#94a3b8" font-size="11" text-anchor="middle">edges grow 2^(1/8)</text>
+  </g>
+  <g>
+    <text x="470" y="76" fill="#34d399" font-size="13">TokenBucket (lazy refill)</text>
+    <rect x="470" y="92" width="360" height="60" rx="10" fill="#1e293b" stroke="#334155"/>
+    <rect x="482" y="104" width="240" height="36" rx="6" fill="#14532d"/>
+    <text x="602" y="126" fill="#a7f3d0" font-size="11" text-anchor="middle">tokens = min(cap, tokens + Δt·rate)</text>
+    <text x="650" y="170" fill="#94a3b8" font-size="11">refill computed at consume time — no timer thread, no drift</text>
+  </g>
+  <text x="24" y="204" fill="#64748b" font-size="11">32ns observe · 28ns quantile · 20ns consume at -O3, medians of 7×1M ops, checked into fixtures/</text>
+</svg>

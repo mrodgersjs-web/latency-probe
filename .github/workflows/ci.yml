@@ -1,0 +1,35 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-and-bench:
+    name: test and bench
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lukka/run-cmake@v10
+        with:
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          cmakeAppendedArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{ matrix.compiler == "gcc" && "g++" || "clang++" }}'
+          buildWithTarget: probe_tests
+          buildDirectory: build
+      - name: tests
+        run: ./build/probe_tests
+      - name: benchmark (evidence printed)
+        run: ./build/probe_bench
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - run: cmake -B build-san -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+      - run: cmake --build build-san
+      - run: ./build-san/probe_tests

@@ -1,0 +1,14 @@
+{
+  "schema": "latency-probe.bench/v1",
+  "measured_at": "2026-10-30",
+  "machine": "Apple M4 Pro, macOS 26, Apple clang 21, -O3",
+  "command": "cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build build && ./build/probe_bench",
+  "median_of_reps": 7,
+  "ops_per_rep": 1000000,
+  "results_us_per_op": {
+    "observe": 0.032,
+    "quantile_p99": 0.028,
+    "token_bucket_consume": 0.020
+  },
+  "interpretation": "sub-50ns per op for all three primitives at -O3; the histogram's constant 512-bucket table means these numbers do not degrade with traffic volume."
+}
